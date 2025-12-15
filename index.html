@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kokoda Training Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Crimson+Pro:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --purple-darkest: #1a0a2e;
+            --purple-dark: #2d1b4e;
+            --purple-mid: #4a2c6f;
+            --purple-light: #6b4c9a;
+            --purple-lighter: #8b6bb5;
+            --purple-accent: #b794f6;
+            --lavender: #e0d4f7;
+            --fog: #f5f3f7;
+            --deep-purple: #3d2463;
+            --accent: #b794f6;
+        }
+
+        body {
+            font-family: 'Crimson Pro', serif;
+            background: linear-gradient(135deg, var(--purple-darkest) 0%, var(--purple-dark) 50%, var(--purple-mid) 100%);
+            min-height: 100vh;
+            color: var(--fog);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0,0,0,0.03) 2px,
+                    rgba(0,0,0,0.03) 4px
+                ),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0,0,0,0.03) 2px,
+                    rgba(0,0,0,0.03) 4px
+                );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 4rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--lavender);
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--purple-accent);
+            letter-spacing: 0.1em;
+            font-weight: 300;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            animation: fadeIn 1s ease-out 0.6s both;
+        }
+
+        .stats-container {
+            margin-bottom: 3rem;
+            animation: fadeIn 1s ease-out 0.6s both;
+        }
+
+        .stats-section {
+            margin-bottom: 2rem;
+        }
+
+        .stats-section-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--purple-lighter);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .weekly-stats {
+            animation-delay: 0.6s;
+        }
+
+        .total-stats {
+            animation-delay: 0.7s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card {
+            background: rgba(29, 16, 52, 0.8);
+            border: 2px solid var(--purple-light);
+            border-radius: 8px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(183, 148, 246, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .stat-label {
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--purple-lighter);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--accent);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .stat-unit {
+            font-size: 1rem;
+            color: var(--lavender);
+            margin-left: 0.5rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            animation: fadeIn 1s ease-out 0.9s both;
+        }
+
+        .section {
+            background: rgba(29, 16, 52, 0.9);
+            border: 2px solid var(--purple-light);
+            border-radius: 8px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--lavender);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--purple-lighter);
+            margin-bottom: 0.5rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(61, 36, 99, 0.5);
+            border: 1px solid var(--purple-light);
+            border-radius: 4px;
+            color: var(--fog);
+            font-family: 'Crimson Pro', serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(61, 36, 99, 0.7);
+            box-shadow: 0 0 15px rgba(183, 148, 246, 0.2);
+        }
+
+        button {
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 1rem 2rem;
+            background: var(--purple-mid);
+            color: var(--fog);
+            border: 2px solid var(--purple-light);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(183, 148, 246, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        button:hover {
+            background: var(--purple-light);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .sessions-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .sessions-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .sessions-list::-webkit-scrollbar-track {
+            background: rgba(61, 36, 99, 0.3);
+            border-radius: 4px;
+        }
+
+        .sessions-list::-webkit-scrollbar-thumb {
+            background: var(--purple-light);
+            border-radius: 4px;
+        }
+
+        .sessions-list::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        .session-item {
+            background: rgba(61, 36, 99, 0.4);
+            border-left: 4px solid var(--purple-light);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .session-item:hover {
+            border-left-color: var(--accent);
+            background: rgba(61, 36, 99, 0.6);
+            transform: translateX(5px);
+        }
+
+        .session-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .session-type {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            color: var(--lavender);
+        }
+
+        .session-date {
+            font-size: 0.9rem;
+            color: var(--purple-lighter);
+        }
+
+        .session-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .session-detail {
+            font-size: 0.95rem;
+            color: var(--fog);
+        }
+
+        .session-detail strong {
+            color: var(--accent);
+        }
+
+        .session-notes {
+            margin-top: 0.5rem;
+            font-style: italic;
+            color: var(--purple-lighter);
+            font-size: 0.9rem;
+        }
+
+        .delete-btn {
+            background: rgba(139, 69, 69, 0.7);
+            border: 1px solid rgba(139, 69, 69, 0.9);
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        .delete-btn:hover {
+            background: rgba(139, 69, 69, 0.9);
+            border-color: #8b4545;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--purple-lighter);
+            font-style: italic;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .training-plan-section {
+            margin-top: 0;
+            margin-bottom: 3rem;
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+
+        .week-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .week-input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .plan-card {
+            background: rgba(61, 36, 99, 0.4);
+            border: 2px solid var(--purple-light);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--purple-light);
+        }
+
+        .plan-phase {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            color: var(--accent);
+            letter-spacing: 0.1em;
+        }
+
+        .plan-week {
+            font-size: 1.1rem;
+            color: var(--purple-lighter);
+        }
+
+        .plan-focus {
+            font-size: 1.1rem;
+            color: var(--lavender);
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .plan-days {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .plan-day {
+            background: rgba(29, 16, 52, 0.6);
+            border-left: 3px solid var(--purple-light);
+            padding: 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .plan-day:hover {
+            border-left-color: var(--accent);
+            transform: translateX(5px);
+        }
+
+        .plan-day.completed {
+            background: rgba(74, 44, 111, 0.5);
+            border-left-color: #4ade80;
+            opacity: 0.8;
+        }
+
+        .plan-day.completed .day-name {
+            color: #4ade80;
+        }
+
+        .plan-day.completed .day-activity {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        .checkmark {
+            color: #4ade80;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-right: 0.3rem;
+        }
+
+        .day-name {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1rem;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .day-activity {
+            color: var(--fog);
+            line-height: 1.6;
+        }
+
+        .plan-tips {
+            background: rgba(74, 44, 111, 0.3);
+            border-left: 3px solid var(--purple-lighter);
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .plan-tips-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: var(--purple-lighter);
+            margin-bottom: 0.5rem;
+        }
+
+        .plan-tips ul {
+            margin-left: 1.5rem;
+            color: var(--fog);
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Kokoda</h1>
+            <div class="subtitle">Training Tracker</div>
+        </header>
+
+        <div class="stats-container">
+            <div class="stats-section">
+                <h3 class="stats-section-title">This Week</h3>
+                <div class="stats-grid weekly-stats">
+                    <div class="stat-card">
+                        <div class="stat-label">Distance</div>
+                        <div class="stat-value" id="weekDistance">0<span class="stat-unit">km</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Elevation</div>
+                        <div class="stat-value" id="weekElevation">0<span class="stat-unit">m</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Sessions</div>
+                        <div class="stat-value" id="weekSessions">0<span class="stat-unit">sessions</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Time</div>
+                        <div class="stat-value" id="weekTime">0<span class="stat-unit">hrs</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-section">
+                <h3 class="stats-section-title">Total Training</h3>
+                <div class="stats-grid total-stats">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Distance</div>
+                        <div class="stat-value" id="totalDistance">0<span class="stat-unit">km</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Elevation</div>
+                        <div class="stat-value" id="totalElevation">0<span class="stat-unit">m</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Training Sessions</div>
+                        <div class="stat-value" id="totalSessions">0<span class="stat-unit">sessions</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Time</div>
+                        <div class="stat-value" id="totalTime">0<span class="stat-unit">hrs</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section full-width training-plan-section">
+            <h2 class="section-title">Training Plan</h2>
+            
+            <div class="week-selector">
+                <div class="week-input">
+                    <label for="trekDate">Trek Date</label>
+                    <input type="date" id="trekDate" placeholder="Select your trek date">
+                </div>
+                <div class="week-input">
+                    <label>Weeks Until Trek</label>
+                    <div style="font-size: 2rem; color: var(--accent); font-weight: 600; padding: 0.5rem 0;" id="weeksRemaining">--</div>
+                </div>
+                <div class="week-input">
+                    <label>Current Week</label>
+                    <div style="font-size: 2rem; color: var(--accent); font-weight: 600; padding: 0.5rem 0;" id="currentWeek">--</div>
+                </div>
+            </div>
+
+            <div id="trainingPlan"></div>
+        </div>
+
+        <div class="main-content">
+            <div class="section">
+                <h2 class="section-title">Log Training</h2>
+                <form id="trainingForm">
+                    <div class="form-group">
+                        <label for="sessionType">Training Type</label>
+                        <select id="sessionType" required>
+                            <option value="">Select type...</option>
+                            <option value="Hike">Hike</option>
+                            <option value="Pack March">Pack March</option>
+                            <option value="Stairs/Hill Repeats">Stairs/Hill Repeats</option>
+                            <option value="Cardio">Cardio</option>
+                            <option value="Strength">Strength Training</option>
+                            <option value="Long Walk">Long Walk</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="date" id="date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="duration">Duration (hours)</label>
+                        <input type="number" id="duration" step="0.1" min="0" placeholder="2.5" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="distance">Distance (km)</label>
+                        <input type="number" id="distance" step="0.1" min="0" placeholder="10">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="elevation">Elevation Gain (m)</label>
+                        <input type="number" id="elevation" step="1" min="0" placeholder="500">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="weight">Pack Weight (kg)</label>
+                        <input type="number" id="weight" step="0.5" min="0" placeholder="15">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" rows="3" placeholder="How did you feel? Terrain? Weather?"></textarea>
+                    </div>
+
+                    <button type="submit">
+                        <span class="btn-content">Log Session</span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Recent Sessions</h2>
+                <div class="sessions-list" id="sessionsList">
+                    <div class="empty-state">No training sessions yet. Start logging your progress!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize with today's date
+        document.getElementById('date').valueAsDate = new Date();
+
+        let sessions = [];
+        let trekDate = null;
+        let completedDays = {}; // Track completed training days by week
+
+        // Load completed days from storage
+        async function loadCompletedDays() {
+            try {
+                const result = await window.storage.get('kokoda-completed-days');
+                if (result && result.value) {
+                    completedDays = JSON.parse(result.value);
+                }
+            } catch (error) {
+                console.log('No saved completed days found');
+            }
+        }
+
+        // Save completed days to storage
+        async function saveCompletedDays() {
+            try {
+                await window.storage.set('kokoda-completed-days', JSON.stringify(completedDays));
+            } catch (error) {
+                console.error('Error saving completed days:', error);
+            }
+        }
+
+        // Mark a training day as complete based on the session date
+        function markDayComplete(sessionDate) {
+            if (!trekDate) return;
+
+            const date = new Date(sessionDate + 'T00:00:00');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const daysRemaining = Math.ceil((trekDate - date) / (1000 * 60 * 60 * 24));
+            const weekNumber = Math.ceil(daysRemaining / 7);
+            const weekNumber20 = Math.min(Math.max(weekNumber, 1), 20);
+            
+            // Get day of week (0 = Sunday, 1 = Monday, etc.)
+            const dayOfWeek = date.getDay();
+            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const dayName = dayNames[dayOfWeek];
+            
+            // Mark this day as complete for this week
+            if (!completedDays[weekNumber20]) {
+                completedDays[weekNumber20] = {};
+            }
+            completedDays[weekNumber20][dayName] = true;
+            
+            saveCompletedDays();
+            
+            // Refresh the plan display if we're viewing this week
+            const currentWeek = parseInt(document.getElementById('currentWeek').textContent);
+            if (currentWeek === weekNumber20) {
+                generatePlan(currentWeek);
+            }
+        }
+
+        // Load trek date from storage
+        async function loadTrekDate() {
+            try {
+                const result = await window.storage.get('kokoda-trek-date');
+                if (result && result.value) {
+                    trekDate = new Date(result.value);
+                    document.getElementById('trekDate').valueAsDate = trekDate;
+                    updateWeeksRemaining();
+                    updateStats(); // Update stats after trek date is loaded
+                }
+            } catch (error) {
+                console.log('No saved trek date found');
+            }
+        }
+
+        // Save trek date to storage
+        async function saveTrekDate(date) {
+            try {
+                await window.storage.set('kokoda-trek-date', date.toISOString());
+            } catch (error) {
+                console.error('Error saving trek date:', error);
+            }
+        }
+
+        // Calculate weeks remaining and current training week
+        function updateWeeksRemaining() {
+            const trekDateInput = document.getElementById('trekDate').value;
+            
+            if (!trekDateInput) {
+                document.getElementById('weeksRemaining').textContent = '--';
+                document.getElementById('currentWeek').textContent = '--';
+                document.getElementById('trainingPlan').innerHTML = '<div class="empty-state">Please set your trek date to see your training plan</div>';
+                return;
+            }
+
+            trekDate = new Date(trekDateInput + 'T00:00:00');
+            saveTrekDate(trekDate);
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const daysRemaining = Math.ceil((trekDate - today) / (1000 * 60 * 60 * 24));
+            const weeksRemaining = Math.ceil(daysRemaining / 7);
+            
+            document.getElementById('weeksRemaining').textContent = weeksRemaining > 0 ? weeksRemaining : 0;
+            
+            // Calculate current training week (20 weeks out = week 20, 1 week out = week 1)
+            const currentTrainingWeek = Math.min(Math.max(weeksRemaining, 1), 20);
+            document.getElementById('currentWeek').textContent = currentTrainingWeek;
+            
+            // Auto-generate the plan for current week
+            generatePlan(currentTrainingWeek);
+            
+            // Update stats with new week calculation
+            updateStats();
+        }
+
+        // Add event listener for trek date changes
+        document.getElementById('trekDate').addEventListener('change', updateWeeksRemaining);
+
+        // Training Plans Database
+        const trainingPlans = {
+            // Weeks 20-17: Base Building Phase
+            20: {
+                phase: "Base Building",
+                focus: "Building aerobic base and establishing routine",
+                days: [
+                    { name: "Monday", activity: "30-45 min easy walk or light cardio" },
+                    { name: "Tuesday", activity: "Rest or gentle yoga/stretching" },
+                    { name: "Wednesday", activity: "45 min moderate walk with 5kg pack" },
+                    { name: "Thursday", activity: "30 min strength training: Bodyweight squats 3x12, Lunges 3x10 each leg, Planks 3x30sec, Bird dogs 3x10 each side, Glute bridges 3x15, Calf raises 3x15" },
+                    { name: "Friday", activity: "Rest day" },
+                    { name: "Saturday", activity: "60-90 min hike with light pack (5-8kg)" },
+                    { name: "Sunday", activity: "Easy 30-40 min recovery walk" }
+                ],
+                tips: [
+                    "Focus on consistent training rather than intensity",
+                    "Break in your hiking boots",
+                    "Start testing different sock combinations",
+                    "Practice proper hydration habits"
+                ]
+            },
+            19: {
+                phase: "Base Building",
+                focus: "Increasing endurance and pack weight gradually",
+                days: [
+                    { name: "Monday", activity: "45 min easy to moderate walk" },
+                    { name: "Tuesday", activity: "30 min strength training: Goblet squats 3x12, Walking lunges 3x12 each leg, Romanian deadlifts 3x12, Side planks 3x30sec each, Dead bugs 3x12, Standing calf raises 3x20" },
+                    { name: "Wednesday", activity: "60 min moderate walk with 8kg pack" },
+                    { name: "Thursday", activity: "Rest or yoga" },
+                    { name: "Friday", activity: "45 min hill/stair repeats (10-15 min work)" },
+                    { name: "Saturday", activity: "2-2.5 hour hike with 8-10kg pack" },
+                    { name: "Sunday", activity: "45 min easy recovery walk" }
+                ],
+                tips: [
+                    "Gradually increase pack weight by 1-2kg per week",
+                    "Focus on maintaining good posture with pack",
+                    "Start incorporating hills into your walks",
+                    "Test out energy foods and snacks"
+                ]
+            },
+            18: {
+                phase: "Base Building",
+                focus: "Building strength and stamina foundation",
+                days: [
+                    { name: "Monday", activity: "60 min moderate-paced walk" },
+                    { name: "Tuesday", activity: "40 min strength training: Barbell/dumbbell squats 4x10, Bulgarian split squats 3x10 each, Step-ups (high box) 3x12 each, Plank to downward dog 3x10, Russian twists 3x20, Single-leg deadlifts 3x10 each" },
+                    { name: "Wednesday", activity: "75 min walk with 10kg pack" },
+                    { name: "Thursday", activity: "Rest day" },
+                    { name: "Friday", activity: "50 min hill/stair repeats (15-20 min work)" },
+                    { name: "Saturday", activity: "2.5-3 hour hike with 10kg pack, include hills" },
+                    { name: "Sunday", activity: "60 min easy walk or active recovery" }
+                ],
+                tips: [
+                    "Include squats, lunges, and step-ups in strength training",
+                    "Practice walking on uneven terrain when possible",
+                    "Start tracking your heart rate during exercise",
+                    "Ensure adequate protein intake for recovery"
+                ]
+            },
+            17: {
+                phase: "Base Building",
+                focus: "Consolidating base fitness and preparation",
+                days: [
+                    { name: "Monday", activity: "60 min steady-paced walk" },
+                    { name: "Tuesday", activity: "45 min strength training: Front squats 4x10, Reverse lunges with dumbbells 3x12 each, Box step-ups with weight 3x12 each, Hanging knee raises 3x12, Mountain climbers 3x20, Farmer's carries 3x30sec, Wall sits 3x45sec" },
+                    { name: "Wednesday", activity: "90 min walk with 10-12kg pack" },
+                    { name: "Thursday", activity: "Rest or light stretching" },
+                    { name: "Friday", activity: "60 min hill repeats with light pack" },
+                    { name: "Saturday", activity: "3-3.5 hour hike with 12kg pack, varied terrain" },
+                    { name: "Sunday", activity: "60 min easy recovery walk" }
+                ],
+                tips: [
+                    "Your long hikes should feel challenging but manageable",
+                    "Practice eating while hiking",
+                    "Start building mental toughness - embrace discomfort",
+                    "Check and maintain your gear regularly"
+                ]
+            },
+
+            // Weeks 16-13: Strength Building Phase
+            16: {
+                phase: "Strength Building",
+                focus: "Increasing intensity and building hill-climbing power",
+                days: [
+                    { name: "Monday", activity: "60 min moderate walk with varied pace" },
+                    { name: "Tuesday", activity: "50 min strength training: Heavy back squats 5x6, Weighted walking lunges 4x10 each, Leg press 4x12, Hamstring curls 3x12, Weighted calf raises 4x15, Planks with leg lifts 3x10 each, Kettlebell swings 3x15" },
+                    { name: "Wednesday", activity: "90 min walk with 12kg pack, include hills" },
+                    { name: "Thursday", activity: "Rest day" },
+                    { name: "Friday", activity: "60 min hill/stair repeats with 8kg pack" },
+                    { name: "Saturday", activity: "3.5-4 hour hike with 12-14kg pack, prioritize elevation gain" },
+                    { name: "Sunday", activity: "75 min easy walk" }
+                ],
+                tips: [
+                    "Start incorporating more elevation into training",
+                    "Focus on downhill technique to save your knees",
+                    "Practice using trekking poles if you plan to use them",
+                    "Increase focus on ankle stability exercises"
+                ]
+            },
+            15: {
+                phase: "Strength Building",
+                focus: "Building power for steep climbs",
+                days: [
+                    { name: "Monday", activity: "75 min steady walk" },
+                    { name: "Tuesday", activity: "50 min strength training: Jump squats 4x10, Box jumps 4x8, Weighted Bulgarian splits 4x10 each, Single-leg squats 3x8 each, Lateral lunges 3x12 each, Box step-up jumps 3x8 each, Plank jacks 3x20, Loaded carries (heavy) 4x40sec" },
+                    { name: "Wednesday", activity: "90 min pack walk with 14kg, hilly terrain" },
+                    { name: "Thursday", activity: "Active recovery - swimming or cycling" },
+                    { name: "Friday", activity: "60 min hill repeats with 10kg pack (push hard)" },
+                    { name: "Saturday", activity: "4-4.5 hour hike with 14kg pack, 500m+ elevation" },
+                    { name: "Sunday", activity: "60 min easy recovery walk" }
+                ],
+                tips: [
+                    "Your legs should be getting noticeably stronger",
+                    "Focus on breathing techniques for steep climbs",
+                    "Start training in similar weather conditions when possible",
+                    "Practice quick rest/fuel stops without cooling down"
+                ]
+            },
+            14: {
+                phase: "Strength Building",
+                focus: "Peak strength development and endurance",
+                days: [
+                    { name: "Monday", activity: "75 min moderate pace walk" },
+                    { name: "Tuesday", activity: "60 min intense strength training: Heavy squats 5x5, Deadlifts 4x6, Weighted step-ups 4x10 each, Walking lunges with overhead press 3x10 each, Weighted box jumps 4x8, Bulgarian split squats 4x8 each, Hanging leg raises 3x12, Farmer's walk 4x50m, Suitcase carries 3x30sec each side" },
+                    { name: "Wednesday", activity: "2 hour pack walk with 14-15kg" },
+                    { name: "Thursday", activity: "Rest day" },
+                    { name: "Friday", activity: "75 min hill repeats with 12kg pack" },
+                    { name: "Saturday", activity: "4.5-5 hour challenging hike with 15kg pack, 600m+ elevation" },
+                    { name: "Sunday", activity: "90 min easy walk" }
+                ],
+                tips: [
+                    "This is peak strength phase - training should feel hard",
+                    "Ensure you're getting enough rest and recovery",
+                    "Fine-tune your gear - no blisters or hot spots",
+                    "Mental preparation is key - visualize the trek"
+                ]
+            },
+            13: {
+                phase: "Strength Building",
+                focus: "Consolidating strength gains",
+                days: [
+                    { name: "Monday", activity: "75 min steady walk" },
+                    { name: "Tuesday", activity: "50 min strength training: Back squats 4x8, Romanian deadlifts 3x10, Walking lunges 3x12 each, Single-leg deadlifts 3x10 each, Calf raises 4x20, Plank variations 3x45sec, Side planks 3x30sec each, Russian twists with weight 3x20" },
+                    { name: "Wednesday", activity: "2 hour pack walk with 15kg, hills" },
+                    { name: "Thursday", activity: "Active recovery or rest" },
+                    { name: "Friday", activity: "60 min hill work with 12kg pack" },
+                    { name: "Saturday", activity: "5-5.5 hour hike with 15kg pack, challenging terrain" },
+                    { name: "Sunday", activity: "60 min easy walk" }
+                ],
+                tips: [
+                    "You should feel significantly stronger than week 1",
+                    "Test all your trek gear on long hikes",
+                    "Practice layering clothing for different conditions",
+                    "Work on mental strategies for tough moments"
+                ]
+            },
+
+            // Weeks 12-9: Peak Endurance Phase
+            12: {
+                phase: "Peak Endurance",
+                focus: "Building maximum endurance for multi-day trekking",
+                days: [
+                    { name: "Monday", activity: "60 min recovery walk" },
+                    { name: "Tuesday", activity: "60 min strength training: Goblet squats 4x12, Front-loaded lunges 4x10 each, Step-ups with knee drive 3x12 each, Glute bridges with weight 4x15, Leg press 3x15, Standing calf raises 4x20, Plank to pike 3x10, Dead bugs 3x15, Bird dogs 3x12 each" },
+                    { name: "Wednesday", activity: "2 hour pack walk with 15kg" },
+                    { name: "Thursday", activity: "Rest day" },
+                    { name: "Friday", activity: "90 min moderate hike with 12kg pack" },
+                    { name: "Saturday", activity: "5.5-6 hour challenging hike with 15-16kg pack, 700m+ elevation" },
+                    { name: "Sunday", activity: "2 hour easy walk (back-to-back training)" }
+                ],
+                tips: [
+                    "Back-to-back long days simulate multi-day trekking",
+                    "Practice hiking on tired legs",
+                    "Focus on recovery nutrition and hydration",
+                    "Consider a practice overnight hike if possible"
+                ]
+            },
+            11: {
+                phase: "Peak Endurance",
+                focus: "Simulating Kokoda conditions",
+                days: [
+                    { name: "Monday", activity: "Rest day (recovery from weekend)" },
+                    { name: "Tuesday", activity: "60 min strength training: Squats 4x10, Reverse lunges with rotation 3x12 each, Box step-ups 4x12 each, Single-leg Romanian deadlifts 3x10 each, Weighted calf raises 4x20, V-ups 3x12, Bicycle crunches 3x20, Superman holds 3x30sec" },
+                    { name: "Wednesday", activity: "2 hour pack walk with 16kg, varied terrain" },
+                    { name: "Thursday", activity: "60 min easy walk" },
+                    { name: "Friday", activity: "90 min hill work with 14kg pack" },
+                    { name: "Saturday", activity: "6-6.5 hour hard hike with 16kg pack, 800m+ elevation" },
+                    { name: "Sunday", activity: "2-2.5 hour moderate walk with 10kg pack" }
+                ],
+                tips: [
+                    "This is your peak training volume",
+                    "Listen to your body - prevent injuries now",
+                    "Practice hiking in heat if possible",
+                    "Ensure feet are well-conditioned (no new blisters)"
+                ]
+            },
+            10: {
+                phase: "Peak Endurance",
+                focus: "Maximum endurance capacity",
+                days: [
+                    { name: "Monday", activity: "Rest or gentle yoga" },
+                    { name: "Tuesday", activity: "60 min strength training: Front squats 4x10, Bulgarian split squats 3x10 each, Walking lunges 3x12 each, Hamstring curls 3x12, Goblet squats 3x15, Weighted step-ups 3x12 each, Plank holds 3x60sec, Mountain climbers 3x20" },
+                    { name: "Wednesday", activity: "2 hour pack walk with 16kg" },
+                    { name: "Thursday", activity: "Rest day" },
+                    { name: "Friday", activity: "75 min hill repeats with 12kg pack" },
+                    { name: "Saturday", activity: "6.5-7 hour challenging hike with 16kg pack, 800m+ elevation" },
+                    { name: "Sunday", activity: "2-2.5 hour walk with 12kg pack" }
+                ],
+                tips: [
+                    "Peak endurance week - this is the hardest training",
+                    "You should feel confident in your fitness now",
+                    "All gear should be completely tested and ready",
+                    "Start thinking about nutrition strategy for the trek"
+                ]
+            },
+            9: {
+                phase: "Peak Endurance",
+                focus: "Consolidating peak fitness",
+                days: [
+                    { name: "Monday", activity: "Rest day" },
+                    { name: "Tuesday", activity: "50 min strength training: Squats 4x10, Lunges with overhead reach 3x10 each, Step-ups 3x12 each, Glute bridges 3x15, Deadlifts 3x8, Calf raises 4x20, Side planks with leg lift 3x10 each, Hollow body holds 3x30sec" },
+                    { name: "Wednesday", activity: "2 hour pack walk with 16kg" },
+                    { name: "Thursday", activity: "60 min easy walk" },
+                    { name: "Friday", activity: "60 min hill work with 10kg pack" },
+                    { name: "Saturday", activity: "6-6.5 hour hike with 15kg pack, 700m+ elevation" },
+                    { name: "Sunday", activity: "2 hour moderate walk" }
+                ],
+                tips: [
+                    "Beginning to slightly reduce volume",
+                    "Maintain intensity but increase recovery",
+                    "Address any lingering niggles or equipment issues",
+                    "Start preparing mentally for the challenge ahead"
+                ]
+            },
+
+            // Weeks 8-5: Taper and Refinement Phase
+            8: {
+                phase: "Taper & Refinement",
+                focus: "Maintaining fitness while increasing recovery",
+                days: [
+                    { name: "Monday", activity: "Rest day" },
+                    { name: "Tuesday", activity: "45 min strength training: Goblet squats 3x12, Reverse lunges 3x10 each, Step-ups 3x10 each, Glute bridges 3x12, Romanian deadlifts 3x10, Calf raises 3x15, Planks 3x45sec, Side planks 3x30sec each" },
+                    { name: "Wednesday", activity: "90 min pack walk with 14kg" },
+                    { name: "Thursday", activity: "Rest or light stretching" },
+                    { name: "Friday", activity: "60 min moderate hike" },
+                    { name: "Saturday", activity: "5-5.5 hour hike with 15kg pack, 600m+ elevation" },
+                    { name: "Sunday", activity: "90 min easy walk" }
+                ],
+                tips: [
+                    "Volume is reducing but maintain some intensity",
+                    "Focus on quality over quantity",
+                    "Perfect your packing system and gear organization",
+                    "Start reducing any intense strength training"
+                ]
+            },
+            7: {
+                phase: "Taper & Refinement",
+                focus: "Sharpening fitness and building freshness",
+                days: [
+                    { name: "Monday", activity: "Rest day" },
+                    { name: "Tuesday", activity: "40 min light strength training: Bodyweight squats 3x15, Walking lunges 3x10 each, Step-ups 3x10 each, Single-leg deadlifts (light/bodyweight) 3x8 each, Calf raises 3x15, Planks 2x45sec, Bird dogs 2x10 each" },
+                    { name: "Wednesday", activity: "90 min pack walk with 14kg" },
+                    { name: "Thursday", activity: "Rest day" },
+                    { name: "Friday", activity: "60 min hills with 12kg pack (moderate effort)" },
+                    { name: "Saturday", activity: "4.5-5 hour hike with 14kg pack, 500m elevation" },
+                    { name: "Sunday", activity: "60 min easy walk" }
+                ],
+                tips: [
+                    "You should be feeling fresher",
+                    "Any soreness should be resolving",
+                    "Check and recheck all gear",
+                    "Start considering packing list for the trek"
+                ]
+            },
+            6: {
+                phase: "Taper & Refinement",
+                focus: "Maintaining sharpness with reduced volume",
+                days: [
+                    { name: "Monday", activity: "Rest day" },
+                    { name: "Tuesday", activity: "40 min maintenance strength training: Squats 3x10, Lunges 3x10 each, Step-ups 3x10 each, Glute bridges 3x12, Calf raises 3x15, Planks 2x40sec, Dead bugs 2x12, Light stretching 5 min" },
+                    { name: "Wednesday", activity: "75 min pack walk with 12kg" },
+                    { name: "Thursday", activity: "Rest or gentle yoga" },
+                    { name: "Friday", activity: "50 min moderate hike" },
+                    { name: "Saturday", activity: "4-4.5 hour hike with 14kg pack, 400-500m elevation" },
+                    { name: "Sunday", activity: "60 min easy walk" }
+                ],
+                tips: [
+                    "Less is more at this stage",
+                    "Focus on staying healthy and injury-free",
+                    "Finalize all travel and trek logistics",
+                    "Begin carb-loading strategy if desired"
+                ]
+            },
+            5: {
+                phase: "Taper & Refinement",
+                focus: "Light maintenance and recovery",
+                days: [
+                    { name: "Monday", activity: "Rest day" },
+                    { name: "Tuesday", activity: "30 min light strength/mobility: Bodyweight squats 2x12, Lunges 2x8 each, Glute bridges 2x12, Calf raises 2x12, Planks 2x30sec, Hip circles 2x10 each direction, Leg swings 2x10 each, Cat-cow stretches 10 reps, Hamstring stretches" },
+                    { name: "Wednesday", activity: "60 min pack walk with 12kg" },
+                    { name: "Thursday", activity: "Rest day" },
+                    { name: "Friday", activity: "45 min easy hike" },
+                    { name: "Saturday", activity: "3-3.5 hour moderate hike with 12kg pack" },
+                    { name: "Sunday", activity: "45 min easy walk" }
+                ],
+                tips: [
+                    "Significant reduction in volume now",
+                    "Focus on sleep and nutrition",
+                    "Double-check travel documents and insurance",
+                    "Start thinking through the mental game plan"
+                ]
+            },
+
+            // Weeks 4-1: Final Taper Phase
+            4: {
+                phase: "Final Taper",
+                focus: "Final preparation and staying fresh",
+                days: [
+                    { name: "Monday", activity: "Rest day" },
+                    { name: "Tuesday", activity: "30 min light mobility/stretching: Leg swings 2x10 each, Hip circles 2x10 each direction, Ankle circles 2x10 each, Cat-cow 10 reps, Gentle squats 2x10, Walking lunges (slow) 2x6 each, Calf stretches, Hamstring stretches, Hip flexor stretches, Quad stretches, Full body gentle flow" },
+                    { name: "Wednesday", activity: "60 min easy pack walk with 10kg" },
+                    { name: "Thursday", activity: "Rest day" },
+                    { name: "Friday", activity: "45 min easy walk" },
+                    { name: "Saturday", activity: "2.5-3 hour easy hike with 12kg pack" },
+                    { name: "Sunday", activity: "40 min easy walk" }
+                ],
+                tips: [
+                    "Very light training now",
+                    "Stay active but well-rested",
+                    "Pack and test your full pack weight",
+                    "Avoid any new foods or activities that could cause issues"
+                ]
+            },
+            3: {
+                phase: "Final Taper",
+                focus: "Rest and final preparations",
+                days: [
+                    { name: "Monday", activity: "Rest day" },
+                    { name: "Tuesday", activity: "30 min light walk" },
+                    { name: "Wednesday", activity: "45 min easy pack walk with 10kg" },
+                    { name: "Thursday", activity: "Rest day" },
+                    { name: "Friday", activity: "30 min easy walk" },
+                    { name: "Saturday", activity: "2 hour easy hike with 12kg pack" },
+                    { name: "Sunday", activity: "Rest or 30 min gentle walk" }
+                ],
+                tips: [
+                    "Minimal training volume",
+                    "Focus on final packing and preparation",
+                    "Hydrate well and eat nutritiously",
+                    "Get plenty of sleep"
+                ]
+            },
+            2: {
+                phase: "Final Taper",
+                focus: "Travel preparation and light activity",
+                days: [
+                    { name: "Monday", activity: "Rest day" },
+                    { name: "Tuesday", activity: "30 min easy walk" },
+                    { name: "Wednesday", activity: "30 min easy pack walk with full pack (test)" },
+                    { name: "Thursday", activity: "Rest day" },
+                    { name: "Friday", activity: "20 min easy walk" },
+                    { name: "Saturday", activity: "60-90 min easy hike or rest" },
+                    { name: "Sunday", activity: "Rest or gentle stretching" }
+                ],
+                tips: [
+                    "Very light activity only",
+                    "Final pack check and adjustments",
+                    "Organize travel documents",
+                    "Stay healthy - avoid sick people and risky foods"
+                ]
+            },
+            1: {
+                phase: "Final Taper",
+                focus: "Travel week - stay loose and healthy",
+                days: [
+                    { name: "Monday", activity: "Rest or 20 min gentle walk" },
+                    { name: "Tuesday", activity: "Rest or light stretching" },
+                    { name: "Wednesday", activity: "20 min easy walk if not traveling" },
+                    { name: "Thursday", activity: "Rest or gentle movement" },
+                    { name: "Friday", activity: "Light stretching/walking at destination" },
+                    { name: "Saturday", activity: "Final rest day or very light walk" },
+                    { name: "Sunday", activity: "Trek begins! You're ready!" }
+                ],
+                tips: [
+                    "Minimize activity - save energy for the trek",
+                    "Stay hydrated during travel",
+                    "Eat well but avoid unfamiliar foods",
+                    "Trust your training - you've done the work!",
+                    "Embrace the adventure ahead!"
+                ]
+            }
+        };
+
+        // Generate training plan
+        function generatePlan(weekNumber) {
+            if (!weekNumber) {
+                weekNumber = parseInt(document.getElementById('currentWeek').textContent);
+            }
+            
+            if (!weekNumber || isNaN(weekNumber) || weekNumber < 1 || weekNumber > 20) {
+                document.getElementById('trainingPlan').innerHTML = `
+                    <div class="empty-state">
+                        Please set a trek date between 1-20 weeks away to see your training plan.
+                    </div>
+                `;
+                return;
+            }
+
+            const plan = trainingPlans[weekNumber];
+            
+            if (!plan) {
+                document.getElementById('trainingPlan').innerHTML = `
+                    <div class="empty-state">
+                        Training plan available for weeks 1-20. Your trek is in ${weekNumber} week${weekNumber !== 1 ? 's' : ''}.
+                    </div>
+                `;
+                return;
+            }
+
+            // Get completed days for this week
+            const weekCompleted = completedDays[weekNumber] || {};
+
+            const planHTML = `
+                <div class="plan-card">
+                    <div class="plan-header">
+                        <div class="plan-phase">${plan.phase}</div>
+                        <div class="plan-week">Week ${weekNumber} Training</div>
+                    </div>
+                    <div class="plan-focus"><strong>Focus:</strong> ${plan.focus}</div>
+                    <div class="plan-days">
+                        ${plan.days.map(day => {
+                            const isComplete = weekCompleted[day.name] || false;
+                            return `
+                            <div class="plan-day ${isComplete ? 'completed' : ''}">
+                                <div class="day-name">
+                                    ${isComplete ? '<span class="checkmark">✓</span> ' : ''}${day.name}
+                                </div>
+                                <div class="day-activity">${day.activity}</div>
+                            </div>
+                        `}).join('')}
+                    </div>
+                    ${plan.tips ? `
+                        <div class="plan-tips">
+                            <div class="plan-tips-title">Key Tips</div>
+                            <ul>
+                                ${plan.tips.map(tip => `<li>${tip}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            document.getElementById('trainingPlan').innerHTML = planHTML;
+        }
+
+        // Load trek date and generate initial plan
+        loadCompletedDays().then(() => loadSessions()).then(() => loadTrekDate());
+
+        // Load sessions from storage
+        async function loadSessions() {
+            try {
+                const result = await window.storage.get('kokoda-sessions');
+                if (result && result.value) {
+                    sessions = JSON.parse(result.value);
+                    renderSessions();
+                    // updateStats will be called after trek date is loaded
+                }
+            } catch (error) {
+                console.log('No saved sessions found');
+            }
+        }
+
+        // Save sessions to storage
+        async function saveSessions() {
+            try {
+                await window.storage.set('kokoda-sessions', JSON.stringify(sessions));
+            } catch (error) {
+                console.error('Error saving sessions:', error);
+                alert('Error saving session. Please try again.');
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('trainingForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const sessionDate = document.getElementById('date').value;
+            const session = {
+                id: Date.now(),
+                type: document.getElementById('sessionType').value,
+                date: sessionDate,
+                duration: parseFloat(document.getElementById('duration').value) || 0,
+                distance: parseFloat(document.getElementById('distance').value) || 0,
+                elevation: parseInt(document.getElementById('elevation').value) || 0,
+                weight: parseFloat(document.getElementById('weight').value) || 0,
+                notes: document.getElementById('notes').value
+            };
+
+            sessions.unshift(session);
+            await saveSessions();
+            
+            // Mark the day as complete in the training plan
+            markDayComplete(sessionDate);
+            
+            renderSessions();
+            updateStats();
+
+            // Reset form
+            document.getElementById('trainingForm').reset();
+            document.getElementById('date').valueAsDate = new Date();
+        });
+
+        // Render sessions list
+        function renderSessions() {
+            const container = document.getElementById('sessionsList');
+
+            if (sessions.length === 0) {
+                container.innerHTML = '<div class="empty-state">No training sessions yet. Start logging your progress!</div>';
+                return;
+            }
+
+            container.innerHTML = sessions.map(session => `
+                <div class="session-item">
+                    <div class="session-header">
+                        <div class="session-type">${session.type}</div>
+                        <div class="session-date">${formatDate(session.date)}</div>
+                    </div>
+                    <div class="session-details">
+                        <div class="session-detail"><strong>${session.duration}</strong> hrs</div>
+                        ${session.distance ? `<div class="session-detail"><strong>${session.distance}</strong> km</div>` : ''}
+                        ${session.elevation ? `<div class="session-detail"><strong>${session.elevation}</strong> m gain</div>` : ''}
+                        ${session.weight ? `<div class="session-detail"><strong>${session.weight}</strong> kg pack</div>` : ''}
+                    </div>
+                    ${session.notes ? `<div class="session-notes">${session.notes}</div>` : ''}
+                    <button class="delete-btn" onclick="deleteSession(${session.id})">
+                        <span class="btn-content">Delete</span>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Delete session
+        async function deleteSession(id) {
+            if (confirm('Delete this training session?')) {
+                const sessionToDelete = sessions.find(s => s.id === id);
+                sessions = sessions.filter(s => s.id !== id);
+                await saveSessions();
+                
+                // Recalculate completed days for the week
+                if (sessionToDelete && trekDate) {
+                    const date = new Date(sessionToDelete.date + 'T00:00:00');
+                    const daysRemaining = Math.ceil((trekDate - date) / (1000 * 60 * 60 * 24));
+                    const weekNumber = Math.min(Math.max(Math.ceil(daysRemaining / 7), 1), 20);
+                    
+                    // Check if there are still sessions on that day
+                    const dayOfWeek = date.getDay();
+                    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                    const dayName = dayNames[dayOfWeek];
+                    
+                    const stillHasSession = sessions.some(s => {
+                        const sDate = new Date(s.date + 'T00:00:00');
+                        return sDate.getDay() === dayOfWeek && 
+                               Math.ceil((trekDate - sDate) / (1000 * 60 * 60 * 24)) === daysRemaining;
+                    });
+                    
+                    // If no more sessions on that day, unmark it
+                    if (!stillHasSession && completedDays[weekNumber]) {
+                        delete completedDays[weekNumber][dayName];
+                        await saveCompletedDays();
+                        
+                        const currentWeek = parseInt(document.getElementById('currentWeek').textContent);
+                        if (currentWeek === weekNumber) {
+                            generatePlan(currentWeek);
+                        }
+                    }
+                }
+                
+                renderSessions();
+                updateStats();
+            }
+        }
+
+        // Update stats
+        function updateStats() {
+            // Calculate total stats
+            const totalDistance = sessions.reduce((sum, s) => sum + s.distance, 0);
+            const totalElevation = sessions.reduce((sum, s) => sum + s.elevation, 0);
+            const totalTime = sessions.reduce((sum, s) => sum + s.duration, 0);
+            const totalSessionsCount = sessions.length;
+
+            // Calculate weekly stats (current training week based on trek date)
+            let weekDistance = 0;
+            let weekElevation = 0;
+            let weekTime = 0;
+            let weekSessionsCount = 0;
+
+            if (trekDate) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const daysRemaining = Math.ceil((trekDate - today) / (1000 * 60 * 60 * 24));
+                const currentWeekNumber = Math.min(Math.max(Math.ceil(daysRemaining / 7), 1), 20);
+                
+                // Filter sessions for current training week
+                sessions.forEach(session => {
+                    const sessionDate = new Date(session.date + 'T00:00:00');
+                    const sessionDaysRemaining = Math.ceil((trekDate - sessionDate) / (1000 * 60 * 60 * 24));
+                    const sessionWeek = Math.min(Math.max(Math.ceil(sessionDaysRemaining / 7), 1), 20);
+                    
+                    if (sessionWeek === currentWeekNumber) {
+                        weekDistance += session.distance;
+                        weekElevation += session.elevation;
+                        weekTime += session.duration;
+                        weekSessionsCount++;
+                    }
+                });
+            }
+
+            // Update total stats display
+            document.getElementById('totalDistance').innerHTML = `${totalDistance.toFixed(1)}<span class="stat-unit">km</span>`;
+            document.getElementById('totalElevation').innerHTML = `${totalElevation.toLocaleString()}<span class="stat-unit">m</span>`;
+            document.getElementById('totalSessions').innerHTML = `${totalSessionsCount}<span class="stat-unit">sessions</span>`;
+            document.getElementById('totalTime').innerHTML = `${totalTime.toFixed(1)}<span class="stat-unit">hrs</span>`;
+
+            // Update weekly stats display
+            document.getElementById('weekDistance').innerHTML = `${weekDistance.toFixed(1)}<span class="stat-unit">km</span>`;
+            document.getElementById('weekElevation').innerHTML = `${weekElevation.toLocaleString()}<span class="stat-unit">m</span>`;
+            document.getElementById('weekSessions').innerHTML = `${weekSessionsCount}<span class="stat-unit">sessions</span>`;
+            document.getElementById('weekTime').innerHTML = `${weekTime.toFixed(1)}<span class="stat-unit">hrs</span>`;
+        }
+
+        // Format date
+        function formatDate(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            return date.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+    </script>
+</body>
+</html>
